@@ -1,0 +1,12 @@
+# Nested external project: esp-csi is a separate Espressif git clone,
+# documented in HANDOVER.md (clone it yourself or keep the local copy).
+firmware/esp-csi/
+
+# Build artifacts
+build/
+*/build/
+sdkconfig.old
+
+# Proposal / research PDFs: copyright of third parties, not ours to
+# redistribute. Remove this line if the owner of these files approves.
+documents/*.pdf
