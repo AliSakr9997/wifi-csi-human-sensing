@@ -208,14 +208,29 @@ so the clickable path is `tools\board-flashing\` in this repository.
 Not every risk detail is repeated here; the longer-form table lives in
 `hardware/board-inventory.md`.
 
-## 9. M3 — planned next milestone (not started)
+## 9. M3 — in progress (M3-P1 build-verified, awaiting hardware validation)
 
 Goal from the friend-side brief: move from raw captures to labelled, classifiable
-data. Five planned work packages, in suggested order:
+data. Five planned work packages:
 
-1. **M3-P1 — UDP transport** (replace/parallel to USB-serial): reduce the
-   CP2102↔UART ceiling (H-09) that limits CSI-rate headroom. Without it you are
-   capped by the serial link, not by Wi-Fi.
+1. **M3-P1 — UDP transport** (replaces USB-serial): reduces the CP2102↔UART
+   ceiling (H-09) that limits CSI-rate headroom. IMPLEMENTED and build-verified:
+   `csi_recv` now sends each `CSI_DATA,…` line over UDP from `wifi_csi_rx_cb`
+   (after the MAC filter / gain block), and `tools/udp_listener.py` receives it
+   into the same CSV format as `tools/csi_capture.py`, so `tools/csi_analyze.py`
+   works unchanged.
+   - Build both images: `csi_recv` (edited) + `csi_send` (unchanged).
+   - Configure `csi_recv/main/app_main.c`: set `CONFIG_CSI_UDP_SSID`,
+     `CONFIG_CSI_UDP_PASSWORD` (AP on **channel 11**, to match ESP-NOW/CSI), and
+     `CONFIG_CSI_UDP_TARGET_IP` (the PC's IP), port `9000`.
+   - Flash Board 3 (RX) with `csi_recv.bin`; flash Board 1 (TX) with
+     `csi_send.bin`.
+   - Run: `python tools\udp_listener.py 9000 60 data\csi_udp_ht20_60hz.csv`
+   - Validate vs M2 Run 2 baseline (HT20 @ 60 pkt/s): target ~58.5 pkt/s,
+     delivery ≥99%, interval jitter σ ~1.65 ms. Compare with
+     `tools\csi_analyze.py` and `docs\m2-data-quality.md`.
+   - Caveat: RX runs promiscuous mode + STA backhaul on ch 11. If CSI drops,
+     revisit (e.g., drop promiscuous or dedicate the channel).
 2. **M3-P2 — first-word correction**: confirm / clean the `first_word_invalid`
    (H-10) artifact; decide whether to drop the first CSI word or rework the
    capture script's init sequence.
@@ -228,10 +243,12 @@ data. Five planned work packages, in suggested order:
    labeling work will need (timestamp, TX/RX MAC, room ID, session ID, gain).
 
 ### Definite next steps (in order)
-- (a) Decide whether M3-P1 (UDP transport) or M3-P4 (geometry) comes first.
-  The CP2102-ceiling argument favors M3-P1.
-- (b) Pull in a labelled-capture plan (resumption in / via M3-P1) if a third node
-  can be obtained — otherwise start on M3-P4 geometry with the existing 2 nodes.
+- (a) Flash Board 3 (RX) with the new `csi_recv.bin` and Board 1 (TX) with
+  `csi_send.bin`; configure the AP to channel 11 and set the SSID/password/IP in
+  `csi_recv/main/app_main.c`, then validate UDP throughput vs the Run 2 baseline
+  (~58.5 pkt/s, ≥99% delivery, jitter σ ~1.65 ms).
+- (b) Pull in a labelled-capture plan if a third node can be obtained —
+  otherwise start on M3-P4 geometry with the existing 2 nodes.
 - (c) Prepare an M3 data-quality report similar in shape to M2's, so the
   baseline can be compared fairly across hardware variants.
 
