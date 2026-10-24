@@ -1,8 +1,9 @@
 # Wi-Fi CSI Human Sensing Project — Complete Technical Status Report & Teammate Setup Guide
 
 **Project Title:** AI-Powered Human Sensing Using Wi-Fi Signals  
-**Roles Addressed:** Role 1 (Embedded & CSI Engineer) & Role 2 (Signal Processing Engineer)  
-**Checkpoint:** Post-Milestone 3-P4 (UDP Transport Verified & Multi-Activity Dataset Collection)  
+**Role 1 Status:** 100% Completed & Hardware-Verified (Ali Sakr)  
+**Next Roles:** Role 2 (Signal Processing) & Role 3 (Machine Learning) Handover Ready  
+**Checkpoint:** Role 1 Certified & Finalized (Autonomous TX, 58.8 pkt/s Zero-Drop UDP Transport, Live Visualizer & Multi-Activity Dataset)  
 **Date:** October 24, 2026  
 
 ---
