@@ -56,6 +56,17 @@ def parse_csi_line(line):
         return None
     return meta, vals
 
+def heartbeat_worker():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    while True:
+        try:
+            s.sendto(b"PING", ("192.168.2.255", UDP_PORT))
+            s.sendto(b"PING", ("192.168.2.3", UDP_PORT))
+        except Exception:
+            pass
+        time.sleep(2.0)
+
 def udp_worker():
     global record_file_handle
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -199,6 +210,17 @@ class CSIDashboardHandler(http.server.BaseHTTPRequestHandler):
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
             self.wfile.write(HTML_PAGE.encode("utf-8"))
+        elif self.path == "/tailwind.js":
+            tw_path = os.path.join(os.path.dirname(__file__), "tailwind.js")
+            if os.path.exists(tw_path):
+                self.send_response(200)
+                self.send_header("Content-Type", "application/javascript")
+                self.end_headers()
+                with open(tw_path, "rb") as f:
+                    self.wfile.write(f.read())
+            else:
+                self.send_response(404)
+                self.end_headers()
         elif self.path == "/api/status":
             with state_lock:
                 now = time.time()
@@ -298,19 +320,14 @@ HTML_PAGE = """<!doctype html>
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Wi-Fi CSI Sensing Studio — AI Human Activity Hub</title>
    <meta name="description" content="Real-time Wi-Fi CSI sensing, human presence and activity detection hub.">
-   <script src='https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4'></script>
-   <link rel="preconnect" href="https://fonts.googleapis.com">
-   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-   <link
-      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-      rel="stylesheet">
+   <script src='/tailwind.js'></script>
    <style>
       :root {
          color-scheme: light only;
       }
 
       body {
-         font-family: 'Inter', sans-serif;
+         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       }
 
       @keyframes app-marquee {
@@ -1139,6 +1156,9 @@ HTML_PAGE = """<!doctype html>
 def main():
     udp_t = threading.Thread(target=udp_worker, daemon=True)
     udp_t.start()
+
+    hb_t = threading.Thread(target=heartbeat_worker, daemon=True)
+    hb_t.start()
 
     server = socketserver.ThreadingTCPServer(("", HTTP_PORT), CSIDashboardHandler)
     server.allow_reuse_address = True

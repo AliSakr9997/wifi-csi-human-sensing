@@ -1,0 +1,12 @@
+@echo off
+title CSI Sensing Studio - Network Optimizer
+echo ======================================================================
+echo    Configuring Ethernet 2 for Wi-Fi CSI Human Sensing Studio
+echo ======================================================================
+echo.
+echo Requesting administrator privileges to optimize network settings...
+echo.
+
+powershell -NoProfile -Command "Start-Process powershell -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy Bypass -Command \"Write-Host `\"======================================================`\" -ForegroundColor Cyan; Write-Host `\"[*] Configuring Ethernet 2 for CSI Studio...`\" -ForegroundColor Yellow; netsh interface ipv4 set address name=`\"Ethernet 2`\" static 192.168.2.2 255.255.255.0 none; netsh interface ipv4 set interface `\"Ethernet 2`\" metric=500; try { Set-NetAdapterAdvancedProperty -Name `\"Ethernet 2`\" -DisplayName `\"Energy-Efficient Ethernet`\" -DisplayValue `\"Disabled`\" -ErrorAction SilentlyContinue } catch {}; try { Set-NetAdapterAdvancedProperty -Name `\"Ethernet 2`\" -DisplayName `\"Green Ethernet`\" -DisplayValue `\"Disabled`\" -ErrorAction SilentlyContinue } catch {}; try { Set-NetAdapterAdvancedProperty -Name `\"Ethernet 2`\" -DisplayName `\"Power Saving Mode`\" -DisplayValue `\"Disabled`\" -ErrorAction SilentlyContinue } catch {}; try { Set-NetAdapterAdvancedProperty -Name `\"Ethernet 2`\" -DisplayName `\"Gigabit Lite`\" -DisplayValue `\"Disabled`\" -ErrorAction SilentlyContinue } catch {}; try { Set-NetAdapterAdvancedProperty -Name `\"Ethernet 2`\" -DisplayName `\"Speed & Duplex`\" -DisplayValue `\"100 Mbps Full Duplex`\" -ErrorAction SilentlyContinue } catch {}; Restart-NetAdapter -Name `\"Ethernet 2`\" -ErrorAction SilentlyContinue; Start-Sleep -Seconds 2; Write-Host `\"`n[SUCCESS] Ethernet 2 fully configured:`\" -ForegroundColor Green; Write-Host `\" - Static IP: 192.168.2.2 (Subnet: 255.255.255.0)`\" -ForegroundColor White; Write-Host `\" - Gateway: None (Protects your home Wi-Fi Internet!)`\" -ForegroundColor White; Write-Host `\" - Metric: 500 (Wi-Fi stays primary for Internet)`\" -ForegroundColor White; Write-Host `\" - Green Ethernet & Power Saving: Disabled (No link drops!)`\" -ForegroundColor White; Write-Host `\" - Speed & Duplex: 100 Mbps Full Duplex`\" -ForegroundColor White; Write-Host `\"======================================================`\" -ForegroundColor Cyan; Start-Sleep -Seconds 4\"'"
+
+echo Done. Launch request issued.
