@@ -122,7 +122,8 @@ def udp_worker():
                         stop_recording_internal()
                     else:
                         if record_file_handle:
-                            row = [f"{now:.3f}"] + meta[:23] + [str(len(vals)), ";".join(vals)]
+                            pkt_time = time.time()
+                            row = [f"{pkt_time:.6f}"] + meta[:23] + [str(len(vals)), ";".join(vals)]
                             record_file_handle.write(",".join(row) + "\n")
                             state["record_packets"] += 1
 
