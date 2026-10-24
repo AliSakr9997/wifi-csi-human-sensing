@@ -208,29 +208,24 @@ so the clickable path is `tools\board-flashing\` in this repository.
 Not every risk detail is repeated here; the longer-form table lives in
 `hardware/board-inventory.md`.
 
-## 9. M3 — in progress (M3-P1 build-verified, awaiting hardware validation)
+## 9. M3 — in progress (M3-P1 COMPLETE & HARDWARE-VERIFIED)
 
 Goal from the friend-side brief: move from raw captures to labelled, classifiable
 data. Five planned work packages:
 
 1. **M3-P1 — UDP transport** (replaces USB-serial): reduces the CP2102↔UART
-   ceiling (H-09) that limits CSI-rate headroom. IMPLEMENTED and build-verified:
-   `csi_recv` now sends each `CSI_DATA,…` line over UDP from `wifi_csi_rx_cb`
-   (after the MAC filter / gain block), and `tools/udp_listener.py` receives it
-   into the same CSV format as `tools/csi_capture.py`, so `tools/csi_analyze.py`
-   works unchanged.
-   - Build both images: `csi_recv` (edited) + `csi_send` (unchanged).
-   - Configure `csi_recv/main/app_main.c`: set `CONFIG_CSI_UDP_SSID`,
-     `CONFIG_CSI_UDP_PASSWORD` (AP on **channel 11**, to match ESP-NOW/CSI), and
-     `CONFIG_CSI_UDP_TARGET_IP` (the PC's IP), port `9000`.
-   - Flash Board 3 (RX) with `csi_recv.bin`; flash Board 1 (TX) with
-     `csi_send.bin`.
-   - Run: `python tools\udp_listener.py 9000 60 data\csi_udp_ht20_60hz.csv`
-   - Validate vs M2 Run 2 baseline (HT20 @ 60 pkt/s): target ~58.5 pkt/s,
-     delivery ≥99%, interval jitter σ ~1.65 ms. Compare with
-     `tools\csi_analyze.py` and `docs\m2-data-quality.md`.
-   - Caveat: RX runs promiscuous mode + STA backhaul on ch 11. If CSI drops,
-     revisit (e.g., drop promiscuous or dedicate the channel).
+   ceiling (H-09) that limits CSI-rate headroom. **COMPLETE AND HARDWARE-VERIFIED:**
+   - Dedicated router configured: SSID `Project_CSI_Router`, Channel 11, HT20.
+   - PC IP on router: `192.168.2.2`, UDP port `9000`.
+   - Receiver firmware updated with clean event-driven Wi-Fi connection and direct
+     `*(uint32_t *)(info->payload + 15)` sequence extraction.
+   - Patch preserved at `firmware/esp-csi-m3-udp.patch`.
+   - **60-Second Validation Baseline (`data/csi_udp_ht20_60hz.csv`):**
+     * Packets captured: **3523** in 60.00 s (rate **58.7 pkt/s**).
+     * Delivery rate: **99.8%** (only 7 packets lost out of 3530).
+     * Device interval jitter ($\sigma$): **1.29 ms** (median 17.0 ms).
+     * Gaps > 3x median: **0** (max gap 34.0 ms).
+     * Payload: 128 complex subcarriers (256 int8), non-zero amplitudes.
 2. **M3-P2 — first-word correction**: confirm / clean the `first_word_invalid`
    (H-10) artifact; decide whether to drop the first CSI word or rework the
    capture script's init sequence.
@@ -243,14 +238,14 @@ data. Five planned work packages:
    labeling work will need (timestamp, TX/RX MAC, room ID, session ID, gain).
 
 ### Definite next steps (in order)
-- (a) Flash Board 3 (RX) with the new `csi_recv.bin` and Board 1 (TX) with
-  `csi_send.bin`; configure the AP to channel 11 and set the SSID/password/IP in
-  `csi_recv/main/app_main.c`, then validate UDP throughput vs the Run 2 baseline
-  (~58.5 pkt/s, ≥99% delivery, jitter σ ~1.65 ms).
-- (b) Pull in a labelled-capture plan if a third node can be obtained —
-  otherwise start on M3-P4 geometry with the existing 2 nodes.
-- (c) Prepare an M3 data-quality report similar in shape to M2's, so the
-  baseline can be compared fairly across hardware variants.
+- (a) Proceed to **M3-P2 (first-word correction)** and **M3-P4 (TX/RX geometry)**:
+  place Board 1 (TX) and Board 3 (RX) in the test room (2–3 m apart).
+- (b) Capture controlled, labelled sensing datasets:
+  - Empty room baseline (`empty_room.csv`)
+  - Person sitting / standing (`still_present.csv`)
+  - Walking back-and-forth across the line of sight (`walking.csv`)
+- (c) Build the preprocessing and feature extraction pipeline (Butterworth filtering,
+  subcarrier variance, Doppler / phase sanitization).
 
 ## 10. Hardware purchase recommendation
 
