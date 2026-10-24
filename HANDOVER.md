@@ -20,16 +20,16 @@ Channel State Information (CSI) captured between two low-cost boards. The core i
 The shipped study proposal assumed 3x ESP32-S3-DevKitC-1. Reality differs; everything
 below was measured, not taken from the proposal.
 
-### Board 1 — CSI transmitter (ESP32)
+### Board 1 — "Ali Board" (CSI Transmitter, ESP32)
 - Chip: ESP32-D0WD-V3, silicon rev v3.1
 - Flash: 4 MB, crystal: 40 MHz
 - MAC (burned): `ec:64:c9:7b:0b:a0`
 - Configured soft STA MAC: `1a:00:00:00:00:00` (locally administered)
-- USB bridge: CP2102 on **COM4**
+- USB bridge: CP2102 on **COM6** (or any port)
 - **Download mode via BOOT button only** — the board does not drop into the ROM
   bootloader by itself. Always do: hold BOOT → press and release EN → release BOOT,
   then run `tools\board-flashing\flash_b1_send.py`. Details in §6.
-- Role: transmitter only.
+- Role: transmitter only. Powers autonomously from any 5V USB charger/powerbank.
 
 ### Board 2 — spare (ESP8266, not CSI-capable)
 - Chip: ESP8266EX, crystal: 26 MHz
@@ -38,14 +38,14 @@ below was measured, not taken from the proposal.
   legacy "CSI" interface cannot reproduce the merged subcarrier data the ESP32 gives.
 - Role: plain transmitter / spare only.
 
-### Board 3 — CSI receiver (ESP32)
+### Board 3 — "Sabi Board" (CSI Receiver, ESP32)
 - Chip: ESP32-D0WD-V3, silicon rev v3.1
 - MAC: `28:56:2f:49:59:58`
-- USB bridge: CP2102 on **COM4** (same port used in tests; other COMs exist too, but
-  scripts were verified against COM4)
+- USB bridge: CP2102 on **COM4**
 - Download mode: **automatic** when the ESP-IDF flasher connects (no button sequence
   needed normally).
-- Role: receiver; its serial output is the CSI capture stream.
+- Role: receiver; streams 128 complex subcarriers via Wi-Fi UDP (port 9000) to PC.
+  Requires only 5V power (from powerbank or laptop USB). No serial cable data link needed.
 
 => With only these boards, **2 simultaneous CSI nodes** are available (1 TX + 1 RX).
 A 3- or 4-node experiment needs a purchase (see §10).
