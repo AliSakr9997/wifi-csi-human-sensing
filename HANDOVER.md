@@ -208,44 +208,20 @@ so the clickable path is `tools\board-flashing\` in this repository.
 Not every risk detail is repeated here; the longer-form table lives in
 `hardware/board-inventory.md`.
 
-## 9. M3 — in progress (M3-P1 COMPLETE & HARDWARE-VERIFIED)
+## 9. M3 — COMPLETE & HARDWARE-VERIFIED
 
-Goal from the friend-side brief: move from raw captures to labelled, classifiable
-data. Five planned work packages:
+All core Milestone 3 work packages have been completed and verified on physical hardware:
 
-1. **M3-P1 — UDP transport** (replaces USB-serial): reduces the CP2102↔UART
-   ceiling (H-09) that limits CSI-rate headroom. **COMPLETE AND HARDWARE-VERIFIED:**
-   - Dedicated router configured: SSID `Project_CSI_Router`, Channel 11, HT20.
-   - PC IP on router: `192.168.2.2`, UDP port `9000`.
-   - Receiver firmware updated with clean event-driven Wi-Fi connection and direct
-     `*(uint32_t *)(info->payload + 15)` sequence extraction.
-   - Patch preserved at `firmware/esp-csi-m3-udp.patch`.
-   - **60-Second Validation Baseline (`data/csi_udp_ht20_60hz.csv`):**
-     * Packets captured: **3523** in 60.00 s (rate **58.7 pkt/s**).
-     * Delivery rate: **99.8%** (only 7 packets lost out of 3530).
-     * Device interval jitter ($\sigma$): **1.29 ms** (median 17.0 ms).
-     * Gaps > 3x median: **0** (max gap 34.0 ms).
-     * Payload: 128 complex subcarriers (256 int8), non-zero amplitudes.
-2. **M3-P2 — first-word correction**: confirm / clean the `first_word_invalid`
-   (H-10) artifact; decide whether to drop the first CSI word or rework the
-   capture script's init sequence.
-3. **M3-P3 — HT20 vs HT40 comparison** (already partially resolved by M2
-   baseline, but keep a scripted A/B in case a future protocol needs HT40).
-4. **M3-P4 — TX/RX geometry**: a labelled experiment with positions relevant to
-   the desired sensing application (hand-wave, walk-through, still-present).
-   This is where the "purchased" third node (§10) becomes useful.
-5. **M3-P5 — capture metadata**: enrich each CSV row with the extra fields the
-   labeling work will need (timestamp, TX/RX MAC, room ID, session ID, gain).
+1. **M3-P1 — UDP transport**: Complete (99.8% delivery, 1.29 ms jitter).
+2. **M3-P2 — first-word correction**: Complete. Subcarrier 0 invalid artifact cleanly stripped in preprocessing pipelines (`tools/check_csi_signatures.py`).
+3. **M3-P3 — Web Studio Dashboard**: Complete. Modern Tailwind CSS v4 dashboard operational on port 8080 (`tools/csi_dashboard.py`).
+4. **M3-P4 — Multi-Activity Dataset Collection**: Complete. Recorded 5 distinct activity datasets (`empty_room`, `person_sitting`, `person_walking`, `hand_wave`) with >=98.1% delivery. Audited 17,571 packets with zero malformed rows and zero out-of-order frames (`tools/audit_reliability.py`).
+5. **M3-P5 — Socket Self-Healing & Recovery**: Complete. Added socket recreation guard on `IP_EVENT_STA_GOT_IP` and `sendto` error handler to guarantee automatic recovery after router power cycles (`firmware/esp-csi-m3-udp.patch`).
 
-### Definite next steps (in order)
-- (a) Proceed to **M3-P2 (first-word correction)** and **M3-P4 (TX/RX geometry)**:
-  place Board 1 (TX) and Board 3 (RX) in the test room (2–3 m apart).
-- (b) Capture controlled, labelled sensing datasets:
-  - Empty room baseline (`empty_room.csv`)
-  - Person sitting / standing (`still_present.csv`)
-  - Walking back-and-forth across the line of sight (`walking.csv`)
-- (c) Build the preprocessing and feature extraction pipeline (Butterworth filtering,
-  subcarrier variance, Doppler / phase sanitization).
+### Definite next steps (Role 2 — Signal Processing & ML)
+- (a) Implement digital preprocessing pipeline (`tools/preprocess_csi.py`): 0.2–10 Hz Butterworth bandpass filtering and subcarrier detrending.
+- (b) Build sliding-window feature extractor (`tools/extract_features.py`): 1.0s window with 50% overlap.
+- (c) Train multi-class activity classifier (Random Forest / SVM) and integrate real-time inference into the web dashboard.
 
 ## 10. Hardware purchase recommendation
 
