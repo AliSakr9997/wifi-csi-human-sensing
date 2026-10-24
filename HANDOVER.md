@@ -1,7 +1,7 @@
 # Wi-Fi CSI Human-Sensing Project — Handover
 
-> Handover for a friend continuing this project. Milestones M0–M2 are complete and verified;
-> M3 is planned but not started. Read this file top-to-bottom before touching anything.
+> **Notice for teammates:** For the up-to-date technical status report, quick-start guide, and new router setup instructions, read **[TEAM_SETUP_AND_STATUS_REPORT.md](file:///e:/Vli/PROJECTS/Project%202%20-%20wifi%20sensing/TEAM_SETUP_AND_STATUS_REPORT.md)**.
+> Milestones M0–M3 are complete and hardware-verified. Read below for detailed background context.
 
 ## 1. Scope
 
