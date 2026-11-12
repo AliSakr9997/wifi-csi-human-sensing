@@ -7,6 +7,20 @@ build/
 */build/
 sdkconfig.old
 
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+tools/__pycache__/
+
 # Proposal / research PDFs: copyright of third parties, not ours to
 # redistribute. Remove this line if the owner of these files approves.
 documents/*.pdf
+
+# Hardware / COM port temporary debugging helpers (kept locally, not pushed)
+tools/detect_com.ps1
+tools/listen_sabi.py
+tools/read_serial.py
+
+# Incomplete / corrupt recording attempts
+data/empty_room_20261103_*.csv

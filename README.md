@@ -200,7 +200,8 @@ build_flash_recv.bat
 ## 🏆 Project Contributors & Graduation Team
 
 - **Ali Sakr** ([@AliSakr9997](https://github.com/AliSakr9997)) — *Role 1 Lead: Embedded Systems, Firmware & CSI Acquisition*
-- *Teammates (Add your names and GitHub handles here as you join!)*
+- **Mohammed Sabry** — *Role 2 Lead: Signal Processing, Noise Filtering & Feature Engineering*
+- *Teammates (Roles 3, 4, 5)*
 
 ---
 *Developed as part of the Senior Graduation Project on Ambient AI Sensing.*
