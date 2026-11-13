@@ -170,7 +170,7 @@ The feature matrix is written to `data/extracted_features.csv` and can be loaded
 │   ├── person_walking_20261024_035105.csv# Large multipath human locomotion
 │   ├── hand_wave_20261024_035248.csv     # Localized arm gesture run 1
 │   ├── hand_wave_20261024_040642.csv     # Localized arm gesture run 2
-│   └── csi_udp_ht20_60hz.csv             # Baseline UDP transmission audit (99.8% delivery)
+│   ├── csi_udp_ht20_60hz.csv             # Baseline UDP transmission audit (99.8% delivery)
 │   └── extracted_features.csv             # 656 labeled, 22-feature ML samples
 ├── docs/                                 # Architectural specifications, reports & plots
 │   ├── m2-data-quality.md                # Milestone 2 hardware quality audit
