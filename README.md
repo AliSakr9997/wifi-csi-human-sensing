@@ -18,6 +18,10 @@
 - 🏷️ **Zero Wearables:** Targets need not carry any smartphone, tag, or sensor.
 - 💰 **Ultra Low Cost:** Built on commodity **ESP32** microcontrollers ($4 each) and standard Wi-Fi routers.
 
+### Latest Milestone — Role 2 Signal Processing Complete
+
+The latest milestone turns the hardware-recorded CSI stream into an ML-ready dataset. It adds a six-stage cleaning pipeline (CSI parsing, null-subcarrier masking, Hampel despiking, 0.2–10 Hz Butterworth filtering, z-score normalization, and spatial PCA), validation reports comparing empty-room and walking recordings, and a sliding-window feature extractor. The resulting `data/extracted_features.csv` contains **656 labeled feature vectors with no missing values** for downstream classifier development.
+
 ---
 
 ## 🏛️ System Architecture
@@ -38,7 +42,7 @@ flowchart LR
 | Role | Domain | Lead | Status | Primary Output |
 | :--- | :--- | :--- | :---: | :--- |
 | **Role 1** | **Embedded & CSI Systems** | **Ali Sakr** | 🟢 **100% Complete** | Hardware firmware, UDP transport, Dashboard visualizer, Multi-activity baseline datasets |
-| **Role 2** | **Signal Processing & Denoising** | *Teammate 1* | 🟡 **Ready to Start** | Bandpass filtering (0.2–10 Hz), phase sanitization, STFT Doppler spectrograms |
+| **Role 2** | **Signal Processing & Denoising** | **Mohammed Sabry** | 🟢 **100% Complete** | Six-stage CSI cleaning pipeline, validation reports, and ML feature dataset |
 | **Role 3** | **Machine Learning & Deep Learning** | *Teammate 2* | ⚪ **Ready to Start** | Windowing, feature extraction, activity classifier (Random Forest, SVM, 1D-CNN) |
 | **Role 4** | **Real-Time Integration & UI** | *Teammate 3* | ⚪ **Ready to Start** | Live model inference in web studio, activity detection badges, intrusion alerts |
 | **Role 5** | **Evaluation & Thesis Documentation** | *Teammate 4* | ⚪ **Ready to Start** | Geometry benchmarking (LoS vs NLoS), multi-subject tests, graduation book & IEEE paper |
@@ -59,14 +63,14 @@ flowchart LR
 
 ---
 
-#### 🟡 Role 2: Signal Processing & Denoising Engineer (Teammate Task)
+#### 🟢 Role 2: Signal Processing & Denoising Engineer — Mohammed Sabry (COMPLETED)
 - **Objective:** Convert raw, noisy CSI amplitude and phase into clean, human-movement-specific signal representations.
-- **Assigned Deliverables:**
-  1. **Impulsive Noise Removal:** Implement Hampel filtering or moving median filtering across subcarriers.
-  2. **Human Motion Bandpass Filter:** Apply a 4th-order Butterworth bandpass filter (0.2 Hz – 10.0 Hz) to eliminate static room reflections (0 Hz DC offset) and high-frequency noise. *(Starter script provided in `tools/preprocess_csi.py`)*.
-  3. **Phase Sanitization:** Unwrap raw phase measurements and apply linear transformation to remove carrier frequency offset (CFO) and sampling time offset (STO).
-  4. **Subcarrier Selection:** Implement variance-based ranking or Principal Component Analysis (PCA) to extract the top-5 most motion-sensitive subcarrier streams.
-  5. **Doppler Spectrograms:** Compute Short-Time Fourier Transform (STFT) to produce time-frequency representations of limb and torso velocities.
+- **Completed Deliverables:**
+  1. **Six-stage DSP pipeline** in `tools/clean_csi_pipeline.py`: complex IQ parsing, null/guard subcarrier masking, Hampel outlier removal, zero-phase Butterworth bandpass filtering (0.2–10 Hz), z-score normalization, and spatial PCA fusion.
+  2. **Validation suite** comparing empty-room and walking recordings before and after cleaning, with results in `docs/validation_report/` and figures in `docs/`.
+  3. **Feature extraction engine** in `tools/extract_features.py` using 1.5-second windows and 0.5-second steps to calculate time-domain, Doppler, spatial, and RSSI features.
+  4. **Role 3 handover dataset** in `data/extracted_features.csv`: 656 labeled samples, 22 features per sample, and 0 missing/NaN values.
+  5. **Technical handover documentation** in `docs/role2_handover_report.md` and `docs/role2_handover_report.html`.
 
 ---
 
@@ -144,25 +148,42 @@ This generates a multi-stage filtering plot saved to `docs/preprocessed_walking_
 
 ![CSI Preprocessing Example](docs/preprocessed_walking_example.png)
 
+### 5. Build the Role 2 Feature Dataset
+
+The latest milestone includes the advanced cleaning and feature extraction tools. Update the input paths in the scripts for your operating system, then run:
+
+```bash
+python tools/clean_csi_pipeline.py
+python tools/extract_features.py
+```
+
+The feature matrix is written to `data/extracted_features.csv` and can be loaded directly by Role 3 classifiers.
+
 ---
 
 ## 📁 Repository Structure
 
 ```
-├── data/                                 # Hardware-recorded activity datasets
+├── data/                                 # Hardware-recorded activity datasets and ML features
 │   ├── empty_room_20261024_035317.csv    # Empty room baseline
 │   ├── person_sitting_20261024_034928.csv# Subtle stationary breathing / presence
 │   ├── person_walking_20261024_035105.csv# Large multipath human locomotion
 │   ├── hand_wave_20261024_035248.csv     # Localized arm gesture run 1
 │   ├── hand_wave_20261024_040642.csv     # Localized arm gesture run 2
 │   └── csi_udp_ht20_60hz.csv             # Baseline UDP transmission audit (99.8% delivery)
-├── docs/                                 # Architectural specifications & plots
+│   └── extracted_features.csv             # 656 labeled, 22-feature ML samples
+├── docs/                                 # Architectural specifications, reports & plots
 │   ├── m2-data-quality.md                # Milestone 2 hardware quality audit
-│   └── preprocessed_walking_example.png  # Preprocessing signal plot
+│   ├── role2_handover_report.md           # Role 2 technical handover
+│   ├── validation_report/                 # Raw vs. cleaned CSI validation report
+│   └── signal_cleaning_stages.png         # Six-stage pipeline visualization
 ├── firmware/                             # ESP-IDF firmware patches
 │   └── esp-csi-m3-udp.patch              # Complete diff for esp-csi repository
 ├── tools/                                # Production Python utilities & dashboards
 │   ├── csi_dashboard.py                  # Live Tailwind CSS v4 Sensing Studio web app
+│   ├── clean_csi_pipeline.py             # Six-stage CSI cleaning and PCA pipeline
+│   ├── extract_features.py               # Sliding-window ML feature extractor
+│   ├── plot_30s_validation.py             # Empty-room vs. walking validation plots
 │   ├── preprocess_csi.py                 # Butterworth bandpass & subcarrier filter (Role 2)
 │   ├── audit_reliability.py              # Sequence, jitter, and packet delivery auditor
 │   ├── fix_csi_network.bat               # Windows 1-click dual-network optimizer (Admin)
