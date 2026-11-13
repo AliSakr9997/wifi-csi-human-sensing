@@ -52,7 +52,7 @@ $$H(f, t) = \sum_{i=1}^{N} a_i(t) e^{-j 2\pi f \tau_i(t)}$$
 In indoor environments, $H(f, t)$ is dominated by stationary reflections ($H_{static}$) and polluted by high-frequency electronics. Our pipeline extracts purely the dynamic human component:
 $$H(f, t) = H_{static} + H_{dynamic}(t) \implies \text{Filtered } H_{dynamic}(t)$$
 
-![6-Stage Signal Cleaning Stages](/C:/Users/MOHAMMED SABRY/.gemini/antigravity/brain/b071a487-32b5-4ce9-bda8-3adc6b27074e/signal_cleaning_stages.png)
+![6-Stage Signal Cleaning Stages](signal_cleaning_stages.png)
 
 ### Detailed Pipeline Breakdown:
 
@@ -99,13 +99,13 @@ flowchart TD
 To prove the pipeline’s efficacy, 1-minute controlled sessions of **Empty Room** and **Person Walking** were captured and compared.
 
 ### 4.1 Raw CSI Comparison (Before Cleaning)
-![Raw CSI Comparison](/C:/Users/MOHAMMED SABRY/.gemini/antigravity/brain/b071a487-32b5-4ce9-bda8-3adc6b27074e/30s_raw_comparison.png)
+![Raw CSI Comparison](30s_raw_comparison.png)
 
 * **Empty Room:** Signal is trapped on a massive static DC offset ($\sim 40\text{ ADC units}$) with high-frequency thermal fuzz ($\pm 1.5$).
 * **Person Walking:** Exhibits dynamic constructive/destructive multipath envelope swings riding on the DC carrier, plus an RSSI shift from $-74.5\text{ dBm}$ to $-71.1\text{ dBm}$.
 
 ### 4.2 Final Cleaned CSI Comparison (After 6-Stage Pipeline)
-![Cleaned CSI Comparison](/C:/Users/MOHAMMED SABRY/.gemini/antigravity/brain/b071a487-32b5-4ce9-bda8-3adc6b27074e/30s_cleaned_comparison.png)
+![Cleaned CSI Comparison](30s_cleaned_comparison.png)
 
 * **Empty Room:** Completely flat zero-centered baseline ($\mu = 0.00$), residual Gaussian noise without rhythmic peaks.
 * **Person Walking:** Distinct, rhythmic sinusoidal footstep wave trains ($1.2\text{--}2.5\text{ Hz}$) with high signal-to-noise ratio and peak-to-peak amplitude reaching $74.5$.
